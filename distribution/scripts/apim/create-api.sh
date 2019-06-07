@@ -18,7 +18,8 @@
 # ----------------------------------------------------------------------------
 
 script_dir=$(dirname "$0")
-apim_host=""
+gw_host=""
+km_host=""
 api_name=""
 api_description=""
 backend_endpoint_url=""
@@ -32,7 +33,8 @@ function usage() {
     echo "$0 -a <apim_host> -n <api_name> -d <api_description> -b <backend_endpoint_url>"
     echo "   [-t <backend_endpoint_type>] [-o <out_sequence>] [-h]"
     echo ""
-    echo "-a: Hostname of WSO2 API Manager."
+    echo "-a: URL of WSO2 API Manager Gateway."
+    echo "-b: URL of WSO2 API Manager KeyManager."
     echo "-n: API Name."
     echo "-d: API Description."
     echo "-b: Backend endpoint URL."
@@ -42,10 +44,13 @@ function usage() {
     echo ""
 }
 
-while getopts "a:n:d:b:t:o:h" opt; do
+while getopts "a:b:n:d:b:t:o:h" opt; do
     case "${opt}" in
     a)
-        apim_host=${OPTARG}
+        gw_host=${OPTARG}
+        ;;
+    b)
+        km_host=${OPTARG}
         ;;
     n)
         api_name=${OPTARG}
@@ -78,8 +83,13 @@ while getopts "a:n:d:b:t:o:h" opt; do
 done
 shift "$((OPTIND - 1))"
 
-if [[ -z $apim_host ]]; then
-    echo "Please provide the Hostname of WSO2 API Manager."
+if [[ -z $gw_host ]]; then
+    echo "Please provide the URL of WSO2 API Manager Gateway."
+    exit 1
+fi
+
+if [[ -z $km_host ]]; then
+    echo "Please provide the URL of WSO2 API Manager KeyManager."
     exit 1
 fi
 
@@ -103,8 +113,8 @@ if [[ -z $backend_endpoint_type ]]; then
     exit 1
 fi
 
-base_https_url="https://${apim_host}:9443"
-nio_https_url="https://${apim_host}:8243"
+base_https_url="https://${gw_host}"
+nio_https_url="https://${km_host}"
 
 curl_command="curl -sk"
 
